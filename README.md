@@ -121,19 +121,15 @@ Every assistant response is scored by a **prompted LLM self-evaluation** (same m
 These two calls use the **same `user_id`**. The second call has no mention of pricing — the agent recalls it from memory stored in the DB.
 
 **Call 1 — Set context (ask about enterprise pricing):**
-```bash
-curl -X POST "https://sales-agent-production-b77b.up.railway.app/chat/demo-user-01" \
-  -H "Content-Type: application/json" \
-  -d '{"message": "What is your enterprise pricing and does it include SSO?"}'
+```cmd
+curl -X POST "https://sales-agent-production-b77b.up.railway.app/chat/demo-user-01" -H "Content-Type: application/json" -d "{\"message\": \"What is your enterprise pricing and does it include SSO?\"}"
 ```
 
 Expected response includes Enterprise plan details ($499/mo, SSO, audit logs).
 
 **Call 2 — Use context (ask a follow-up with no pricing re-stated):**
-```bash
-curl -X POST "https://sales-agent-production-b77b.up.railway.app/chat/demo-user-01" \
-  -H "Content-Type: application/json" \
-  -d '{"message": "Does that plan also include audit logs and what is the SLA?"}'
+```cmd
+curl -X POST "https://sales-agent-production-b77b.up.railway.app/chat/demo-user-01" -H "Content-Type: application/json" -d "{\"message\": \"Does that plan also include audit logs and what is the SLA?\"}"
 ```
 
 The agent knows "that plan" refers to Enterprise from the previous session — **without the pricing being re-sent in the request body**.
