@@ -6,7 +6,7 @@ A hosted conversational API where the agent remembers context across sessions, u
 
 ## Live URL
 
-> **https://sales-agent-production-b77b.up.railway.app**
+> **https://sales-agent-production-b77b.up.railway.app/docs**
 
 ---
 
@@ -122,7 +122,7 @@ These two calls use the **same `user_id`**. The second call has no mention of pr
 
 **Call 1 — Set context (ask about enterprise pricing):**
 ```bash
-curl -X POST "https://sales-agent-production-b77b.up.railway.app/chat/demo-user-01" \
+curl -X POST "https://your-app.railway.app/chat/demo-user-01" \
   -H "Content-Type: application/json" \
   -d '{"message": "What is your enterprise pricing and does it include SSO?"}'
 ```
@@ -131,7 +131,7 @@ Expected response includes Enterprise plan details ($499/mo, SSO, audit logs).
 
 **Call 2 — Use context (ask a follow-up with no pricing re-stated):**
 ```bash
-curl -X POST "https://sales-agent-production-b77b.up.railway.app/chat/demo-user-01" \
+curl -X POST "https://your-app.railway.app/chat/demo-user-01" \
   -H "Content-Type: application/json" \
   -d '{"message": "Does that plan also include audit logs and what is the SLA?"}'
 ```
@@ -144,7 +144,7 @@ The agent knows "that plan" refers to Enterprise from the previous session — *
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/bhadresh14/sales-agent.git
+git clone https://github.com/your-username/sales-agent.git
 cd sales-agent
 pip install -r requirements.txt
 
