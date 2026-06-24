@@ -1,13 +1,6 @@
-"""
-SQLite-backed memory implementation.
-To swap to Postgres: create postgres_memory.py implementing BaseMemory,
-update memory_factory.py — nothing else changes.
-"""
 import json
 from typing import List, Optional
-
 from sqlalchemy.orm import Session as DBSession
-
 from app.db.models import Session, Message, EvalLog
 from app.memory.base import BaseMemory
 from app.models.schemas import MessageRecord, EvalRecord
@@ -27,7 +20,6 @@ class SQLiteMemory(BaseMemory):
         tools_called: Optional[List[str]] = None,
         eval_data: Optional[dict] = None,
     ) -> None:
-        # Ensure the session row exists
         session = self.db.query(Session).filter_by(id=session_id).first()
         if not session:
             session = Session(id=session_id, user_id=user_id)
@@ -44,7 +36,6 @@ class SQLiteMemory(BaseMemory):
         self.db.add(msg)
         self.db.flush()
 
-        # Attach eval log for assistant messages
         if role == "assistant" and eval_data:
             ev = EvalLog(
                 message_id=msg.id,
@@ -98,13 +89,8 @@ class SQLiteMemory(BaseMemory):
             .limit(limit)
             .all()
         )
-        # Return in chronological order for LLM context
-        return [
-            {"role": m.role, "content": m.content}
-            for m in reversed(messages)
-        ]
+        return [{"role": m.role, "content": m.content} for m in reversed(messages)]
 
     def wipe_memory(self, user_id: str) -> None:
-        # Deletes cascade from sessions → messages → eval_logs
         self.db.query(Session).filter_by(user_id=user_id).delete()
         self.db.commit()

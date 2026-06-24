@@ -1,50 +1,32 @@
 import json
 from pathlib import Path
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session as DBSession
-
 from app.db.database import get_db
 from app.models.schemas import (
-    ChatRequest, ChatResponse,
-    HistoryResponse, DeleteMemoryResponse,
-    CatalogResponse, HealthResponse,
-    EvalAggregateResponse,
+    ChatRequest, ChatResponse, HistoryResponse, DeleteMemoryResponse,
+    CatalogResponse, HealthResponse, EvalAggregateResponse,
 )
-from app.services.chat_service import (
-    handle_chat, get_history, delete_memory, get_eval_aggregates
-)
+from app.services.chat_service import handle_chat, get_history, delete_memory, get_eval_aggregates
 
 router = APIRouter()
-
 _CATALOG_PATH = Path(__file__).parent.parent.parent / "catalog.json"
 
-
-# ── Health ─────────────────────────────────────────────────────────────────────
 
 @router.get("/health", response_model=HealthResponse, tags=["System"])
 def health_check():
     return HealthResponse(status="ok", version="1.0.0")
 
 
-# ── Catalog ────────────────────────────────────────────────────────────────────
-
 @router.get("/catalog", response_model=CatalogResponse, tags=["Catalog"])
 def get_catalog():
-    """Returns the product/pricing catalog the agent uses."""
     with open(_CATALOG_PATH, "r") as f:
         data = json.load(f)
     return CatalogResponse(**data)
 
 
-# ── Chat ───────────────────────────────────────────────────────────────────────
-
 @router.post("/chat/{user_id}", response_model=ChatResponse, tags=["Chat"])
 def chat(user_id: str, request: ChatRequest, db: DBSession = Depends(get_db)):
-    """
-    Send a message and receive a response with self-eval scores.
-    Memory persists across separate calls using the same user_id.
-    """
     if not request.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty.")
     return handle_chat(user_id=user_id, message=request.message, db=db)
@@ -52,19 +34,14 @@ def chat(user_id: str, request: ChatRequest, db: DBSession = Depends(get_db)):
 
 @router.get("/chat/{user_id}/history", response_model=HistoryResponse, tags=["Chat"])
 def conversation_history(user_id: str, db: DBSession = Depends(get_db)):
-    """Full conversation history for a user across all past sessions."""
     return get_history(user_id=user_id, db=db)
 
 
 @router.delete("/chat/{user_id}/memory", response_model=DeleteMemoryResponse, tags=["Chat"])
 def wipe_memory(user_id: str, db: DBSession = Depends(get_db)):
-    """Delete all stored memory for a user (GDPR-style reset)."""
     return delete_memory(user_id=user_id, db=db)
 
 
-# ── Bonus: Eval Aggregates ─────────────────────────────────────────────────────
-
 @router.get("/chat/{user_id}/evals", response_model=EvalAggregateResponse, tags=["Evals"])
 def eval_aggregates(user_id: str, db: DBSession = Depends(get_db)):
-    """Bonus: aggregated eval scores across all sessions for a user."""
     return get_eval_aggregates(user_id=user_id, db=db)

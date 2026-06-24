@@ -1,7 +1,3 @@
-"""
-Eval service — prompts the LLM to self-score every response.
-Structured output, always present, logged to DB.
-"""
 import json
 import re
 from openai import OpenAI
@@ -15,41 +11,30 @@ client = OpenAI(
 )
 
 EVAL_SYSTEM_PROMPT = """You are a strict quality evaluator for an AI sales assistant.
-You will be given:
-- The user's question
-- The catalog/tool context used
-- The assistant's response
+You will be given the user's question, the catalog context used, and the assistant's response.
 
-Score the response on these dimensions (0.0 to 1.0):
-- groundedness: Is the response factually grounded in the provided catalog context? (1.0 = fully grounded, 0.0 = hallucinated)
-- relevance: Does the response directly address what the user asked? (1.0 = perfectly relevant)
-- confidence: Overall confidence in the response quality (combination of the above + coherence)
+Score on these dimensions (0.0 to 1.0):
+- groundedness: Is the response factually grounded in the catalog context?
+- relevance: Does the response directly address what the user asked?
+- confidence: Overall quality confidence
 
-Also decide:
-- flagged: true if confidence < 0.6 or if the response contains speculation not in the catalog
+Also set:
+- flagged: true if confidence < 0.6 or response contains speculation not in the catalog
 
-Respond ONLY with valid JSON in this exact format:
+Respond ONLY with valid JSON:
 {
   "groundedness": <float>,
   "relevance": <float>,
   "confidence": <float>,
   "flagged": <bool>,
-  "reasoning": "<one sentence explanation>"
+  "reasoning": "<one sentence>"
 }"""
 
 
-def evaluate_response(
-    user_message: str,
-    assistant_response: str,
-    catalog_context: str,
-) -> EvalRecord:
-    """
-    Calls the LLM to self-evaluate the assistant's response.
-    Always returns a structured EvalRecord — never raises.
-    """
-    eval_user_prompt = f"""User question: {user_message}
+def evaluate_response(user_message: str, assistant_response: str, catalog_context: str) -> EvalRecord:
+    eval_prompt = f"""User question: {user_message}
 
-Catalog context used:
+Catalog context:
 {catalog_context}
 
 Assistant response:
@@ -62,19 +47,14 @@ Score this response."""
             model=settings.model_name,
             messages=[
                 {"role": "system", "content": EVAL_SYSTEM_PROMPT},
-                {"role": "user", "content": eval_user_prompt},
+                {"role": "user", "content": eval_prompt},
             ],
             temperature=0.1,
             max_tokens=300,
         )
         raw = completion.choices[0].message.content.strip()
-
-        # Extract JSON even if the model wraps it in markdown fences
         json_match = re.search(r"\{.*\}", raw, re.DOTALL)
-        if json_match:
-            data = json.loads(json_match.group())
-        else:
-            data = json.loads(raw)
+        data = json.loads(json_match.group() if json_match else raw)
 
         return EvalRecord(
             groundedness=float(data.get("groundedness", 0.5)),
@@ -83,13 +63,11 @@ Score this response."""
             flagged=bool(data.get("flagged", False)),
             reasoning=str(data.get("reasoning", "Eval completed.")),
         )
-
     except Exception as e:
-        # Fallback — never block the response pipeline
         return EvalRecord(
             groundedness=0.5,
             relevance=0.5,
             confidence=0.5,
             flagged=False,
-            reasoning=f"Eval failed to parse: {str(e)}",
+            reasoning=f"Eval failed: {str(e)}",
         )

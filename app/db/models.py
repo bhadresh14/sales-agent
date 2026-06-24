@@ -10,7 +10,6 @@ def generate_uuid() -> str:
 
 
 class Session(Base):
-    """Represents one conversation session for a user."""
     __tablename__ = "sessions"
 
     id = Column(String, primary_key=True, default=generate_uuid)
@@ -21,15 +20,14 @@ class Session(Base):
 
 
 class Message(Base):
-    """A single message turn (user or assistant) within a session."""
     __tablename__ = "messages"
 
     id = Column(String, primary_key=True, default=generate_uuid)
     session_id = Column(String, ForeignKey("sessions.id", ondelete="CASCADE"), nullable=False)
     user_id = Column(String, nullable=False, index=True)
-    role = Column(String, nullable=False)          # "user" or "assistant"
+    role = Column(String, nullable=False)
     content = Column(Text, nullable=False)
-    tools_called = Column(Text, nullable=True)      # JSON array stored as string
+    tools_called = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     session = relationship("Session", back_populates="messages")
@@ -37,7 +35,6 @@ class Message(Base):
 
 
 class EvalLog(Base):
-    """Self-evaluation scores attached to every assistant message."""
     __tablename__ = "eval_logs"
 
     id = Column(String, primary_key=True, default=generate_uuid)
@@ -54,7 +51,6 @@ class EvalLog(Base):
 
 
 class HumanFlagLog(Base):
-    """Log of conversations escalated to a human reviewer."""
     __tablename__ = "human_flag_logs"
 
     id = Column(String, primary_key=True, default=generate_uuid)

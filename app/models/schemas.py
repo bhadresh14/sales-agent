@@ -3,8 +3,6 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
-# ── Request / Response ─────────────────────────────────────────────────────────
-
 class ChatRequest(BaseModel):
     message: str
 
@@ -25,8 +23,6 @@ class ChatResponse(BaseModel):
     user_id: str
 
 
-# ── History ────────────────────────────────────────────────────────────────────
-
 class MessageRecord(BaseModel):
     id: str
     session_id: str
@@ -46,8 +42,6 @@ class HistoryResponse(BaseModel):
     messages: List[MessageRecord]
 
 
-# ── Catalog ────────────────────────────────────────────────────────────────────
-
 class Plan(BaseModel):
     name: str
     price: str
@@ -65,8 +59,6 @@ class CatalogResponse(BaseModel):
     faqs: List[FAQ]
 
 
-# ── Misc ───────────────────────────────────────────────────────────────────────
-
 class HealthResponse(BaseModel):
     status: str
     version: str
@@ -77,13 +69,11 @@ class DeleteMemoryResponse(BaseModel):
     message: str
 
 
-# ── Bonus: Eval Aggregates ─────────────────────────────────────────────────────
-
 class EvalAggregateResponse(BaseModel):
     user_id: str
     total_responses: int
     avg_groundedness: float
     avg_relevance: float
     avg_confidence: float
-    high_confidence_pct: float   # % of responses with confidence >= 0.8
+    high_confidence_pct: float
     flagged_count: int
