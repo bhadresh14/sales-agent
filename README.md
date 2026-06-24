@@ -138,22 +138,26 @@ The agent knows "that plan" refers to Enterprise from the previous session — *
 
 ## Local Setup
 
-```bash
-# 1. Clone and install
+```cmd
 git clone https://github.com/bhadresh14/sales-agent.git
 cd sales-agent
 pip install -r requirements.txt
-
-# 2. Configure environment
-cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY
-
-# 3. Run
-uvicorn main:app --reload
-
-# 4. Open API docs
-# http://localhost:8000/docs
 ```
+
+Copy `.env.example` to `.env` and set your API key:
+```
+OPENAI_API_KEY=your_groq_api_key
+DATABASE_URL=sqlite:///./sales_agent.db
+MODEL_NAME=llama-3.3-70b-versatile
+OPENAI_BASE_URL=https://api.groq.com/openai/v1
+```
+
+Run the server:
+```cmd
+uvicorn main:app --reload
+```
+
+API docs: http://localhost:8000/docs
 
 ---
 
@@ -191,12 +195,8 @@ sales-agent/
 
 ---
 
-## Deployment (Railway)
+## Deployed on Railway
 
-1. Push this repo to GitHub
-2. Go to [railway.app](https://railway.app) → New Project → Deploy from GitHub
-3. Add environment variable: `OPENAI_API_KEY=sk-...`
-4. Railway auto-detects Python and runs the `Procfile` start command
-5. Copy the generated URL into the curl commands above
+Live URL: **https://sales-agent-production-b77b.up.railway.app**
 
-> **Note on SQLite on Railway:** Railway's filesystem is ephemeral. For production persistence, add a Postgres plugin in Railway and update `DATABASE_URL` — the memory layer swap requires changing only `memory_factory.py`.
+> SQLite is used for persistence. For production scale, swap to Postgres by updating only `memory_factory.py` — no other code changes needed.
