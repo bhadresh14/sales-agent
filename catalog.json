@@ -1,0 +1,44 @@
+{
+  "plans": [
+    {
+      "name": "Starter",
+      "price": "$49/mo",
+      "features": ["5 users", "API access", "email support"],
+      "description": "Perfect for small teams getting started. Includes basic API access and email support for up to 5 users."
+    },
+    {
+      "name": "Growth",
+      "price": "$199/mo",
+      "features": ["25 users", "webhooks", "priority support"],
+      "description": "Designed for growing teams. Includes webhook integrations, priority support, and scales to 25 users."
+    },
+    {
+      "name": "Enterprise",
+      "price": "$499/mo",
+      "features": ["unlimited users", "SSO", "audit logs", "SLA"],
+      "description": "Full-featured plan for large organizations. Includes SSO, audit logs, SLA guarantee, and unlimited users."
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Do you offer a free trial?",
+      "answer": "Yes, all plans come with a 14-day free trial, no credit card required."
+    },
+    {
+      "question": "Can I upgrade or downgrade my plan?",
+      "answer": "Yes, you can change your plan at any time. Upgrades take effect immediately, downgrades at the next billing cycle."
+    },
+    {
+      "question": "Is there an annual discount?",
+      "answer": "Yes, annual billing gives you 2 months free (equivalent to ~17% off)."
+    },
+    {
+      "question": "What payment methods do you accept?",
+      "answer": "We accept all major credit cards, ACH transfers, and invoicing for Enterprise customers."
+    },
+    {
+      "question": "Does the Enterprise plan include SSO?",
+      "answer": "Yes, the Enterprise plan includes SSO (Single Sign-On), audit logs, and a dedicated SLA."
+    }
+  ]
+}
